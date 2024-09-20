@@ -2,8 +2,8 @@ services:
   publicholidayapi:
     image: ${DOCKER_REGISTRY-}publicholidayapi
     build:
-      context: .
-      dockerfile: PublicHolidayAPI/Dockerfile
+      context: ./PublicHolidayAPI
+      dockerfile: Dockerfile
   SqlServerDb:
     container_name: SqlServerContainer
     image: mcr.microsoft.com/mssql/server:2017-latest
@@ -18,7 +18,7 @@ services:
     ports:
       - 8001:80 
     build:
-      context: .
-      dockerfile: PublicHolidayAPI/Dockerfile
+      context: ./PublicHolidayAPI
+      dockerfile: Dockerfile
     depends_on:
       - SqlServerDb
