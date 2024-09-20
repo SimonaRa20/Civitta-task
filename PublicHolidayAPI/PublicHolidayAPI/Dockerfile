@@ -11,21 +11,24 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
-COPY ["PublicHolidayAPI/PublicHolidayAPI.csproj", "PublicHolidayAPI/"]
+# Copy the project file and restore dependencies
+COPY ["PublicHolidayAPI/PublicHolidayAPI.csproj", "./"]
 
-WORKDIR "/src/PublicHolidayAPI"
+# Restore dependencies
+RUN dotnet restore
 
-RUN dotnet restore "./PublicHolidayAPI.csproj"
-
+# Copy the remaining source code
 COPY . .
 
-RUN dotnet build "./PublicHolidayAPI.csproj" -c $BUILD_CONFIGURATION -o /app/build
+# Build the project
+RUN dotnet build "PublicHolidayAPI.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./PublicHolidayAPI.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "PublicHolidayAPI.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "PublicHolidayAPI.dll"]
+
