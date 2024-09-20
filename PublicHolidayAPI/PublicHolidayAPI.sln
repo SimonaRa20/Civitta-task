@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35312.102
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PublicHolidayAPI", "PublicHolidayAPI\PublicHolidayAPI.csproj", "{E485010C-0908-41B3-A38C-7C5FD4987C59}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PublicHolidayAPI", "PublicHolidayAPI\PublicHolidayAPI.csproj", "{E485010C-0908-41B3-A38C-7C5FD4987C59}"
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{5C339AB5-FA8F-4CFE-99F9-8382E59848D0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PublicHolidayAPI.Tests", "..\PublicHolidayAPI.Tests\PublicHolidayAPI.Tests.csproj", "{E729E3E6-EF5B-4E26-966A-61C02915F905}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{5C339AB5-FA8F-4CFE-99F9-8382E59848D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5C339AB5-FA8F-4CFE-99F9-8382E59848D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5C339AB5-FA8F-4CFE-99F9-8382E59848D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E729E3E6-EF5B-4E26-966A-61C02915F905}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E729E3E6-EF5B-4E26-966A-61C02915F905}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E729E3E6-EF5B-4E26-966A-61C02915F905}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E729E3E6-EF5B-4E26-966A-61C02915F905}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
