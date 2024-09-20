@@ -21,6 +21,10 @@ namespace PublicHolidayAPI.Controllers
             _context = context;
         }
 
+        /// <summary>
+        /// Retrieves the list of countries.
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("countries")]
         public async Task<IActionResult> GetCountries()
         {
@@ -53,6 +57,12 @@ namespace PublicHolidayAPI.Controllers
             return Ok(countryDtos);
         }
 
+        /// <summary>
+        /// Retrieves the holidays for a specific country and year.
+        /// </summary>
+        /// <param name="countryCode"></param>
+        /// <param name="year"></param>
+        /// <returns></returns>
         [HttpGet("holidays/{countryCode}/{year}")]
         public async Task<IActionResult> GetHolidays(string countryCode, int year)
         {
@@ -88,6 +98,12 @@ namespace PublicHolidayAPI.Controllers
             return Ok(groupedByMonth);
         }
 
+        /// <summary>
+        /// Returns flag if given day is public holiday in given country.
+        /// </summary>
+        /// <param name="countryCode"></param>
+        /// <param name="date"></param>
+        /// <returns></returns>
         [HttpGet("isPublicHoliday/{countryCode}/{date}")]
         public async Task<IActionResult> IsPublicHoliday(string countryCode, DateTime date)
         {
@@ -110,6 +126,12 @@ namespace PublicHolidayAPI.Controllers
             return Ok(new { isPublicHoliday });
         }
 
+        /// <summary>
+        /// Returns flag if given day is work day in given country.
+        /// </summary>
+        /// <param name="countryCode"></param>
+        /// <param name="date"></param>
+        /// <returns></returns>
         [HttpGet("isWorkDay/{countryCode}/{date}")]
         public async Task<IActionResult> IsWorkDay(string countryCode, DateTime date)
         {
@@ -135,6 +157,12 @@ namespace PublicHolidayAPI.Controllers
             return Ok(new { isWorkDay });
         }
 
+        /// <summary>
+        /// Returns information about specific day status.
+        /// </summary>
+        /// <param name="countryCode"></param>
+        /// <param name="date"></param>
+        /// <returns></returns>
         [HttpGet("specific-day-status/{countryCode}/{date}")]
         public async Task<IActionResult> GetSpecificDayStatus(string countryCode, DateTime date)
         {
@@ -187,6 +215,12 @@ namespace PublicHolidayAPI.Controllers
             return Ok(response);
         }
 
+        /// <summary>
+        /// Returns the maximum number of free days in a row.
+        /// </summary>
+        /// <param name="countryCode"></param>
+        /// <param name="year"></param>
+        /// <returns></returns>
         [HttpGet("max-consecutive-free-days/{countryCode}/{year}")]
         public async Task<IActionResult> GetMaxConsecutiveFreeDays(string countryCode, int year)
         {
