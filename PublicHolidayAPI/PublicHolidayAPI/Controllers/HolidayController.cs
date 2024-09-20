@@ -88,5 +88,103 @@ namespace PublicHolidayAPI.Controllers
             return Ok(groupedByMonth);
         }
 
+        [HttpGet("isPublicHoliday/{countryCode}/{date}")]
+        public async Task<IActionResult> IsPublicHoliday(string countryCode, DateTime date)
+        {
+            if (date == default || string.IsNullOrWhiteSpace(countryCode))
+            {
+                return BadRequest("Invalid request parameters.");
+            }
+
+            var holidays = await _context.Holidays
+                .Where(h => h.Country.CountryCode == countryCode && h.Date.Date == date.Date)
+                .ToListAsync();
+
+            if (!holidays.Any())
+            {
+                holidays = await _kayaposoftApiService.GetHolidaysAsync(countryCode, date.Year);
+            }
+
+            var isPublicHoliday = holidays.Any(h => h.Date.Date == date.Date);
+
+            return Ok(new { isPublicHoliday });
+        }
+
+        [HttpGet("isWorkDay/{countryCode}/{date}")]
+        public async Task<IActionResult> IsWorkDay(string countryCode, DateTime date)
+        {
+            if (date == default || string.IsNullOrWhiteSpace(countryCode))
+            {
+                return BadRequest("Invalid request parameters.");
+            }
+
+            var holidays = await _context.Holidays
+                .Where(h => h.Country.CountryCode == countryCode && h.Date.Date == date.Date)
+                .ToListAsync();
+
+            if (!holidays.Any())
+            {
+                holidays = await _kayaposoftApiService.GetHolidaysAsync(countryCode, date.Year);
+            }
+
+            var isPublicHoliday = holidays.Any(h => h.Date.Date == date.Date);
+            var isWeekend = date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday;
+
+            var isWorkDay = !(isPublicHoliday || isWeekend);
+
+            return Ok(new { isWorkDay });
+        }
+
+        [HttpGet("specific-day-status/{countryCode}/{date}")]
+        public async Task<IActionResult> GetSpecificDayStatus(string countryCode, DateTime date)
+        {
+            if (date == default || string.IsNullOrWhiteSpace(countryCode))
+            {
+                return BadRequest("Invalid request parameters.");
+            }
+
+            var holidays = await _context.Holidays
+                .Where(h => h.Country.CountryCode == countryCode && h.Date.Date == date.Date)
+                .ToListAsync();
+
+            if (!holidays.Any())
+            {
+                holidays = await _kayaposoftApiService.GetHolidaysAsync(countryCode, date.Year);
+            }
+
+            var status = string.Empty;
+            var isHoliday = holidays.Any();
+            Holiday selectDate = holidays.Where(x => x.Date == date).FirstOrDefault();
+
+            if(selectDate == null)
+            {
+                if (date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday)
+                {
+                    status = "Weekend";
+                }
+                else
+                {
+                    status = "WorkDay";
+                }
+            }
+            if(isHoliday)
+            {
+                status = "Holiday";
+            }
+
+            var response = new DayStatusResponse
+            {
+                Date = new DateDetails
+                {
+                    Day = date.Day,
+                    Month = date.Month,
+                    Year = date.Year,
+                    DayOfWeek = (int)date.DayOfWeek + 1
+                },
+                Status = status
+            };
+
+            return Ok(response);
+        }
     }
 }
