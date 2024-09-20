@@ -186,5 +186,56 @@ namespace PublicHolidayAPI.Controllers
 
             return Ok(response);
         }
+
+        [HttpGet("max-consecutive-free-days/{countryCode}/{year}")]
+        public async Task<IActionResult> GetMaxConsecutiveFreeDays(string countryCode, int year)
+        {
+            if (string.IsNullOrWhiteSpace(countryCode) || year <= 0)
+            {
+                return BadRequest("Invalid request parameters.");
+            }
+
+            var holidays = await _context.Holidays
+                .Where(h => h.Country.CountryCode == countryCode && h.Date.Year == year)
+                .ToListAsync();
+
+            if (!holidays.Any())
+            {
+                holidays = await _kayaposoftApiService.GetHolidaysAsync(countryCode, year);
+            }
+
+            var freeDays = new HashSet<DateTime>(holidays.Select(h => h.Date));
+
+            var firstDayOfYear = new DateTime(year, 1, 1);
+            var lastDayOfYear = new DateTime(year, 12, 31);
+            for (var date = firstDayOfYear; date <= lastDayOfYear; date = date.AddDays(1))
+            {
+                if (date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday)
+                {
+                    freeDays.Add(date);
+                }
+            }
+
+            var maxStreak = 0;
+            var currentStreak = 0;
+
+            var sortedFreeDays = freeDays.OrderBy(d => d).ToList();
+            for (int i = 0; i < sortedFreeDays.Count; i++)
+            {
+                if (i == 0 || (sortedFreeDays[i] - sortedFreeDays[i - 1]).Days == 1)
+                {
+                    currentStreak++;
+                }
+                else
+                {
+                    maxStreak = Math.Max(maxStreak, currentStreak);
+                    currentStreak = 1;
+                }
+            }
+
+            maxStreak = Math.Max(maxStreak, currentStreak);
+
+            return Ok(new { maxConsecutiveFreeDays = maxStreak });
+        }
     }
 }
