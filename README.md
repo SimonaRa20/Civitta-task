@@ -26,6 +26,8 @@
 1. Clone the repository
 `git clone https://github.com/yourusername/your-repo-name.git
 cd your-repo-name`
-3. Install dependencies
+2. Install dependencies
   * Ensure you have .NET SDK installed on your machine. You can download it from [here](https://dotnet.microsoft.com/en-us/download/dotnet).
   * Ensure you have Docker installed on your machine. You can download it form [here](https://www.docker.com/products/docker-desktop/).
+
+For deployment first time tried to use https://railway.app/ deployment environment, but docker file build fails. Locally everything works.
