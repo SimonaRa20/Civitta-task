@@ -19,6 +19,6 @@ services:
             - 8001:80 
         build:
           context: .
-          dockerfile: publicholidayapi/Dockerfile
+          dockerfile: PublicHolidayAPI/Dockerfile
         depends_on:
             - SqlServerDb 
