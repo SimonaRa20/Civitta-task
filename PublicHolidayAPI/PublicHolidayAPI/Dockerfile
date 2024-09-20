@@ -7,10 +7,11 @@ EXPOSE 80
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copy the project file from the correct directory
+# Copy the solution and project files
 COPY ["PublicHolidayAPI/PublicHolidayAPI.csproj", "PublicHolidayAPI/"]
+COPY ["PublicHolidayAPI.sln", "./"]
 
-# Set the working directory to where the .csproj file is located
+# Set the working directory to where the solution or project file is located
 WORKDIR /src/PublicHolidayAPI
 
 # Restore dependencies
