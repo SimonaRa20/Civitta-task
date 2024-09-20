@@ -12,13 +12,11 @@ namespace PublicHolidayAPI.Controllers
     [Route("[controller]")]
     public class HolidayController : ControllerBase
     {
-        private readonly IKayaposoftApiService _kayaposoftApiService;
-        private readonly HolidayDbContext _context;
+        private readonly IHolidayService _holidayService;
 
-        public HolidayController(IKayaposoftApiService holidayService, HolidayDbContext context)
+        public HolidayController(IHolidayService holidayService)
         {
-            _kayaposoftApiService = holidayService;
-            _context = context;
+            _holidayService = holidayService;
         }
 
         /// <summary>
@@ -30,33 +28,8 @@ namespace PublicHolidayAPI.Controllers
         {
             try
             {
-                List<Country> countries = await _context.Countries.ToListAsync();
-                if (!countries.Any())
-                {
-                    countries = await _kayaposoftApiService.GetCountriesAsync();
-                }
-
-                var countryDtos = countries.Select(country => new CountriesResponse
-                {
-                    CountryCode = country.CountryCode,
-                    Regions = country.Regions,
-                    HolidayTypes = country.HolidayTypes.Select(ht => ht.ToString()).ToList(),
-                    FullName = country.FullName,
-                    FromDate = new DateDetails
-                    {
-                        Day = country.FromDate.Day,
-                        Month = country.FromDate.Month,
-                        Year = country.FromDate.Year
-                    },
-                    ToDate = new DateDetails
-                    {
-                        Day = country.ToDate.Day,
-                        Month = country.ToDate.Month,
-                        Year = country.ToDate.Year
-                    }
-                }).ToList();
-
-                return Ok(countryDtos);
+                var countries = await _holidayService.GetCountriesAsync();
+                return Ok(countries);
             }
             catch (Exception ex)
             {
@@ -75,36 +48,8 @@ namespace PublicHolidayAPI.Controllers
         {
             try
             {
-                var holidays = _context.Holidays
-                    .Where(h => h.Country.CountryCode == countryCode && h.Date.Year == year)
-                    .ToList();
-
-                if (!holidays.Any())
-                {
-                    holidays = await _kayaposoftApiService.GetHolidaysAsync(countryCode, year);
-                }
-
-                var groupedByMonth = holidays
-                    .GroupBy(h => h.Date.Month)
-                    .Select(g => new MonthHolidaysResponse
-                    {
-                        Month = g.Key,
-                        Holidays = g.Select(h => new HolidayResponse
-                        {
-                            Name = h.Name,
-                            Date = h.Date,
-                            Names = h.Names.Select(n => new HolidayNameResponse
-                            {
-                                Lang = n.Lang,
-                                Text = n.Text
-                            }).ToList(),
-                            Flags = h.Flags,
-                            Type = h.Type
-                        }).ToList()
-                    })
-                    .ToList();
-
-                return Ok(groupedByMonth);
+                var holidays = await _holidayService.GetHolidaysAsync(countryCode, year);
+                return Ok(holidays);
             }
             catch (Exception ex)
             {
@@ -123,22 +68,7 @@ namespace PublicHolidayAPI.Controllers
         {
             try
             {
-                if (date == default || string.IsNullOrWhiteSpace(countryCode))
-                {
-                    return BadRequest("Invalid request parameters.");
-                }
-
-                var holidays = await _context.Holidays
-                    .Where(h => h.Country.CountryCode == countryCode && h.Date.Date == date.Date)
-                    .ToListAsync();
-
-                if (!holidays.Any())
-                {
-                    holidays = await _kayaposoftApiService.GetHolidaysAsync(countryCode, date.Year);
-                }
-
-                var isPublicHoliday = holidays.Any(h => h.Date.Date == date.Date);
-
+                var isPublicHoliday = await _holidayService.IsPublicHolidayAsync(countryCode, date);
                 return Ok(new { isPublicHoliday });
             }
             catch (Exception ex)
@@ -158,25 +88,7 @@ namespace PublicHolidayAPI.Controllers
         {
             try
             {
-                if (date == default || string.IsNullOrWhiteSpace(countryCode))
-                {
-                    return BadRequest("Invalid request parameters.");
-                }
-
-                var holidays = await _context.Holidays
-                    .Where(h => h.Country.CountryCode == countryCode && h.Date.Date == date.Date)
-                    .ToListAsync();
-
-                if (!holidays.Any())
-                {
-                    holidays = await _kayaposoftApiService.GetHolidaysAsync(countryCode, date.Year);
-                }
-
-                var isPublicHoliday = holidays.Any(h => h.Date.Date == date.Date);
-                var isWeekend = date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday;
-
-                var isWorkDay = !(isPublicHoliday || isWeekend);
-
+                var isWorkDay = await _holidayService.IsWorkDayAsync(countryCode, date);
                 return Ok(new { isWorkDay });
             }
             catch (Exception ex)
@@ -196,53 +108,8 @@ namespace PublicHolidayAPI.Controllers
         {
             try
             {
-                if (date == default || string.IsNullOrWhiteSpace(countryCode))
-                {
-                    return BadRequest("Invalid request parameters.");
-                }
-
-                var holidays = await _context.Holidays
-                    .Where(h => h.Country.CountryCode == countryCode && h.Date.Date == date.Date)
-                    .ToListAsync();
-
-                if (!holidays.Any())
-                {
-                    holidays = await _kayaposoftApiService.GetHolidaysAsync(countryCode, date.Year);
-                }
-
-                var status = string.Empty;
-                var isHoliday = holidays.Any();
-                Holiday selectDate = holidays.Where(x => x.Date == date).FirstOrDefault();
-
-                if (selectDate == null)
-                {
-                    if (date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday)
-                    {
-                        status = "Weekend";
-                    }
-                    else
-                    {
-                        status = "WorkDay";
-                    }
-                }
-                if (isHoliday)
-                {
-                    status = "Holiday";
-                }
-
-                var response = new DayStatusResponse
-                {
-                    Date = new DateDetails
-                    {
-                        Day = date.Day,
-                        Month = date.Month,
-                        Year = date.Year,
-                        DayOfWeek = (int)date.DayOfWeek + 1
-                    },
-                    Status = status
-                };
-
-                return Ok(response);
+                var status = await _holidayService.GetSpecificDayStatusAsync(countryCode, date);
+                return Ok(status);
             }
             catch (Exception ex)
             {
@@ -261,52 +128,8 @@ namespace PublicHolidayAPI.Controllers
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(countryCode) || year <= 0)
-                {
-                    return BadRequest("Invalid request parameters.");
-                }
-
-                var holidays = await _context.Holidays
-                    .Where(h => h.Country.CountryCode == countryCode && h.Date.Year == year)
-                    .ToListAsync();
-
-                if (!holidays.Any())
-                {
-                    holidays = await _kayaposoftApiService.GetHolidaysAsync(countryCode, year);
-                }
-
-                var freeDays = new HashSet<DateTime>(holidays.Select(h => h.Date));
-
-                var firstDayOfYear = new DateTime(year, 1, 1);
-                var lastDayOfYear = new DateTime(year, 12, 31);
-                for (var date = firstDayOfYear; date <= lastDayOfYear; date = date.AddDays(1))
-                {
-                    if (date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday)
-                    {
-                        freeDays.Add(date);
-                    }
-                }
-
-                var maxStreak = 0;
-                var currentStreak = 0;
-
-                var sortedFreeDays = freeDays.OrderBy(d => d).ToList();
-                for (int i = 0; i < sortedFreeDays.Count; i++)
-                {
-                    if (i == 0 || (sortedFreeDays[i] - sortedFreeDays[i - 1]).Days == 1)
-                    {
-                        currentStreak++;
-                    }
-                    else
-                    {
-                        maxStreak = Math.Max(maxStreak, currentStreak);
-                        currentStreak = 1;
-                    }
-                }
-
-                maxStreak = Math.Max(maxStreak, currentStreak);
-
-                return Ok(new { maxConsecutiveFreeDays = maxStreak });
+                var maxConsecutiveFreeDays = await _holidayService.GetMaxConsecutiveFreeDaysAsync(countryCode, year);
+                return Ok(new { maxConsecutiveFreeDays });
             }
             catch (Exception ex)
             {

@@ -49,6 +49,7 @@ namespace PublicHolidayAPI
 
             builder.Services.AddDbContext<HolidayDbContext>(db => db.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
             builder.Services.AddHttpClient<IKayaposoftApiService,KayaposoftApiService>();
+            builder.Services.AddScoped<IHolidayService, HolidayService>();
             builder.Services.AddScoped<HolidayController>();
 
             var app = builder.Build();
