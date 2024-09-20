@@ -9,7 +9,7 @@ services:
       - MSSQL_SA_PASSWORD=myStong_Password123#
   WebApi:
     container_name: WebApiContainer
-    image: ${DOCKER_REGISTRY-}publicholidayapi
+    image: anomis/publicholidayapi:latest
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
@@ -17,8 +17,5 @@ services:
     ports:
       - 8080:8080
       - 8081:8081
-    build:
-      context: ./PublicHolidayAPI
-      dockerfile: Dockerfile
     depends_on:
       - SqlServerDb
