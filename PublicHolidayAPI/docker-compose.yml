@@ -9,11 +9,13 @@ services:
       - MSSQL_SA_PASSWORD=myStong_Password123#
   WebApi:
     container_name: WebApiContainer
-    image: anomis/publicholidayapi:latest
+    image: anomis/publicholidayapi:v2
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=labadiena
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=./https/https.pfx
     ports:
       - 8080:8080
       - 8081:8081

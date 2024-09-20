@@ -4,6 +4,7 @@
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 USER app
 WORKDIR /app
+COPY ./https.pfx ./https/https.pfx
 EXPOSE 8080
 EXPOSE 8081
 
@@ -22,6 +23,8 @@ RUN dotnet build "./PublicHolidayAPI.csproj" -c $BUILD_CONFIGURATION -o /app/bui
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish "./PublicHolidayAPI.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+
+
 
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
