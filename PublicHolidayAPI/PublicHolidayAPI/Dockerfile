@@ -1,35 +1,29 @@
-# Set up the runtime environment
+# See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
+
+# This stage is used when running from VS in fast mode (Default for Debug configuration)
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+USER app
 WORKDIR /app
-EXPOSE 80
+EXPOSE 8080
+EXPOSE 8081
 
-# Set up the build environment
+
+# This stage is used to build the service project
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /src
-
-# Copy the solution and project files
-COPY ["PublicHolidayAPI/PublicHolidayAPI.csproj", "PublicHolidayAPI/"]
-COPY ["PublicHolidayAPI.sln", "./"]
-
-# Set the working directory to where the solution or project file is located
-WORKDIR /src/PublicHolidayAPI
-
-# Restore dependencies
-RUN dotnet restore
-
-# Copy the remaining source code
-COPY . .
-
-# Build the project
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet build "PublicHolidayAPI.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR /src
+COPY ["PublicHolidayAPI/PublicHolidayAPI.csproj", "PublicHolidayAPI/"]
+RUN dotnet restore "./PublicHolidayAPI/PublicHolidayAPI.csproj"
+COPY . .
+WORKDIR "/src/PublicHolidayAPI"
+RUN dotnet build "./PublicHolidayAPI.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
-# Publish the build artifacts
+# This stage is used to publish the service project to be copied to the final stage
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "PublicHolidayAPI.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./PublicHolidayAPI.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
-# Final stage - runtime environment
+# This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
