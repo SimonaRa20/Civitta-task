@@ -13,9 +13,13 @@ namespace PublicHolidayAPI
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+            builder.Services.AddControllers().AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+                options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+            });
 
-            builder.Services.AddControllers();
+
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowAllOrigins",
@@ -26,7 +30,7 @@ namespace PublicHolidayAPI
                               .AllowAnyHeader();
                     });
             });
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c =>
             {
@@ -38,8 +42,9 @@ namespace PublicHolidayAPI
             builder.Services.AddScoped<HolidayController>();
 
             var app = builder.Build();
+
             app.UseCors("AllowAllOrigins");
-            // Configure the HTTP request pipeline.
+
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -49,7 +54,6 @@ namespace PublicHolidayAPI
             app.UseHttpsRedirection();
             
             app.UseAuthorization();
-
 
             app.MapControllers();
 

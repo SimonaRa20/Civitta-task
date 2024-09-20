@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using PublicHolidayAPI.Contracts;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.Metrics;
 
@@ -12,11 +13,17 @@ namespace PublicHolidayAPI.Models
         public int CountryId { get; set; }
         [Required]
         public string Name { get; set; }
+        [NotMapped]
+        public List<HolidayName> Names { get; set; } = new List<HolidayName>();
         [Required]
         public DateTime Date { get; set; }
+        [NotMapped]
+        public List<HolidayNote> Notes { get; set; } = new List<HolidayNote>();
+        [NotMapped]
+        public List<string> Flags { get; set; } = new List<string>();
         [Required]
-        public string Type { get; set; }
-        public ICollection<string> Flags { get; set; } = new List<string>();
+        public HolidayTypes Type { get; set; }
+
         public DateTime? ObservedOn { get; set; }
 
         public Country Country { get; set; }
