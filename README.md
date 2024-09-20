@@ -30,4 +30,20 @@ cd your-repo-name`
   * Ensure you have .NET SDK installed on your machine. You can download it from [here](https://dotnet.microsoft.com/en-us/download/dotnet).
   * Ensure you have Docker installed on your machine. You can download it form [here](https://www.docker.com/products/docker-desktop/).
 
-For deployment first time tried to use https://railway.app/ deployment environment, but docker file build fails. Locally everything works.
+For deployment first time I tried to use https://railway.app/ deployment environment, but docker file build fails. Locally everything works.
+For deployment second time I tried to use azure https://publicholidayapi-c6cwf3hhbrenc5ff.northeurope-01.azurewebsites.net/swagger/index.html development environment, but database not load, but api correctly deployed.
+
+For final deployment used friend server https://publicholidayapi.amperelink.com/swagger/index.html and everything works.
+
+## Deployment instructions
+
+1. Build the Docker Image: Before running the application, build the Docker image. This step is necessary if your docker-compose.yml uses a local Dockerfile to build the image:
+`docker-compose build`
+2. Run the Application: Once the image is built, run your application in detached mode (-d flag runs the containers in the background): `docker-compose up -d`
+Docker Compose will:
+* Build and start all the services defined in your docker-compose.yml.
+* Keep them running in the background.
+3. Verify the Deployment: To check if everything is running correctly, you can use: `docker-compose ps`
+4. Access the Application: Open your browser and go to the specified port. For example, if your docker-compose.yml maps port 8080, visit: `http://localhost:8080`
+5. Stopping the Application: When you want to stop the services, run: `docker-compose down`
+
